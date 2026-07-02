@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUIA DE SQL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff5f9 0%, #ffe0f0 50%, #ffc4d6 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Menú Lateral */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2d1b24 0%, #1f1419 100%);
+            color: #f5f5f5;
+            overflow-y: auto;
+            padding: 20px 0;
+            box-shadow: 5px 0 20px rgba(227, 29, 106, 0.15);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #3d2530 0%, #2a1c22 100%);
+            margin-bottom: 20px;
+            border-bottom: 3px solid #E31D6A;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.8em;
+            color: #FFB6D9;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-item {
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-item:hover {
+            background: rgba(227, 29, 106, 0.2);
+            border-left-color: #E31D6A;
+            padding-left: 28px;
+            color: #FFB6D9;
+        }
+
+        .menu-item.active {
+            background: linear-gradient(90deg, rgba(227, 29, 106, 0.3), transparent);
+            border-left-color: #E31D6A;
+            color: #FFB6D9;
+            font-weight: 600;
+        }
+
+        .menu-icon {
+            margin-right: 12px;
+            font-size: 1.3em;
+        }
+
+        /* Contenido Principal */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 50px;
+            background: linear-gradient(135deg, #fef7fb 0%, #fff0f7 100%);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 2.8em;
+            color: #2d1b24;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #E31D6A;
+            padding-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .section-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(227, 29, 106, 0.08);
+            line-height: 1.9;
+            color: #3a3a3a;
+        }
+
+        .section-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin: 22px 0;
+            align-items: stretch;
+        }
+
+        .section-images.single {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+
+        .section-images img {
+            width: 100%;
+            height: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(227, 29, 106, 0.16);
+            box-shadow: 0 12px 35px rgba(227, 29, 106, 0.1);
+            transition: transform 0.3s ease, filter 0.3s ease;
+            object-fit: contain;
+        }
+
+        .section-images.single img {
+            max-width: 720px;
+        }
+
+        .section-images img:hover {
+            transform: translateY(-4px);
+            filter: brightness(1.04);
+        }
+
+        .section-content h2 {
+            color: #E31D6A;
+            margin-top: 30px;
+            margin-bottom: 18px;
+            font-size: 1.6em;
+            font-weight: 700;
+        }
+
+        .section-content h3 {
+            color: #B8255C;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, #2d1b24 0%, #1f1419 100%);
+            color: #FFD6E8;
+            padding: 28px 20px 20px 20px;
+            border-radius: 10px;
+            margin: 18px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            border-left: 5px solid #E31D6A;
+            box-shadow: 0 5px 15px rgba(227, 29, 106, 0.1);
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '$ mysql> ';
+            position: absolute;
+            top: 14px;
+            left: 18px;
+            color: #FFB6D9;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #fff0f7 0%, #ffe8f4 100%);
+            border-left: 5px solid #E31D6A;
+            padding: 18px;
+            margin: 18px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(227, 29, 106, 0.08);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #e8f8f5 0%, #d5f4f1 100%);
+            border-left: 5px solid #1abc9c;
+            padding: 18px;
+            margin: 18px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(26, 188, 156, 0.08);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+            border-left: 5px solid #f39c12;
+            padding: 18px;
+            margin: 18px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.08);
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 12px;
+            margin-bottom: 18px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #3a3a3a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(227, 29, 106, 0.08);
+        }
+
+        table th {
+            background: linear-gradient(135deg, #E31D6A 0%, #B8255C 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        table td {
+            border: 1px solid #f0f0f0;
+            padding: 14px 15px;
+            color: #3a3a3a;
+        }
+
+        table tr:nth-child(even) {
+            background: #fef7fb;
+        }
+
+        table tr:hover {
+            background: #ffe8f4;
+            transition: background 0.3s ease;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(227, 29, 106, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #E31D6A 0%, #B8255C 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #B8255C 0%, #8B1D45 100%);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Menú Lateral -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>📚 GUIA DE SQL</h1>
+            </div>
+
+            <div class="menu-item active" onclick="showSection(0)">
+                <span class="menu-icon">🚀</span>
+                <span>Introducción a BD</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(1)">
+                <span class="menu-icon">🏗️</span>
+                <span>Diseño de BD</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(2)">
+                <span class="menu-icon">➕</span>
+                <span>Crear BD y Tablas</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(3)">
+                <span class="menu-icon">✏️</span>
+                <span>Modificar/Eliminar Tablas</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(4)">
+                <span class="menu-icon">🔗</span>
+                <span>Foreign Key/Normalización</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(5)">
+                <span class="menu-icon">📝</span>
+                <span>Insertar Registros</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(6)">
+                <span class="menu-icon">🗑️</span>
+                <span>Eliminar Registros</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(7)">
+                <span class="menu-icon">🔄</span>
+                <span>Actualizar Registros</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(8)">
+                <span class="menu-icon">🔍</span>
+                <span>Seleccionar Registros</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(9)">
+                <span class="menu-icon">⚙️</span>
+                <span>Operadores Lógicos y Comparación</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(10)">
+                <span class="menu-icon">📊</span>
+                <span>Order By/Limit/Top</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(11)">
+                <span class="menu-icon">📄</span>
+                <span>Funciones de Texto</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(12)">
+                <span class="menu-icon">🔢</span>
+                <span>Funciones Numéricas</span>
+            </div>
+
+            <div class="menu-item" onclick="showSection(13)">
+                <span class="menu-icon">🕐</span>
+                <span>Fechas y Horas en SQL</span>
+            </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="content">
+            <!-- 1. Introducción a Bases de Datos -->
+            <div class="content-section active">
+                <h1 class="section-title">🚀 Introducción a Bases de Datos</h1>
+                <div class="section-images single">
+                    <img src="img/introduccion.jpeg" alt="Introducción a bases de datos">
+                </div>
+                <div class="section-content">
+                    <h2>¿Qué es una Base de Datos?</h2>
+                    <p>Una base de datos es una colección organizada de datos que se almacena y se accede electrónicamente desde un sistema informático. Los datos se organizan en tablas que contienen filas y columnas.</p>
+
+                    <h2>Tipos de Bases de Datos</h2>
+                    <ul>
+                        <li><strong>Relacionales:</strong> Organiza datos en tablas con relaciones (MySQL, PostgreSQL, SQL Server)</li>
+                        <li><strong>NoSQL:</strong> Almacena datos de forma flexible (MongoDB, Cassandra)</li>
+                        <li><strong>Documentales:</strong> Basadas en documentos JSON</li>
+                        <li><strong>Gráficas:</strong> Optimizadas para relaciones complejas</li>
+                    </ul>
+
+                    <h2>Conceptos Básicos</h2>
+                    <table>
+                        <tr>
+                            <th>Término</th>
+                            <th>Descripción</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Tabla</strong></td>
+                            <td>Estructura que contiene datos organizados en filas y columnas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fila/Registro</strong></td>
+                            <td>Un conjunto de datos relacionados en una tabla</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Columna/Campo</strong></td>
+                            <td>Una característica o atributo de los datos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clave Primaria</strong></td>
+                            <td>Identificador único para cada registro</td>
+                        </tr>
+                    </table>
+
+                    <div class="example-box">
+                        <strong>Ejemplo de Tabla:</strong>
+                        <table>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Juan</td>
+                                <td>juan@email.com</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>María</td>
+                                <td>maria@email.com</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Las bases de datos relacionales son las más usadas en aplicaciones web y comerciales.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Diseño de Bases de Datos -->
+            <div class="content-section">
+                <h1 class="section-title">🏗️ Diseño de Bases de Datos</h1>
+                <div class="section-images single">
+                    <img src="img/diseño.jpeg" alt="Diseño de base de datos">
+                </div>
+                <div class="section-content">
+                    <h2>Principios de Diseño</h2>
+                    <p>El buen diseño es fundamental para crear una base de datos eficiente, mantenible y escalable.</p>
+
+                    <h2>Pasos en el Diseño</h2>
+                    <ol>
+                        <li><strong>Análisis de requisitos:</strong> Entender qué datos necesitas</li>
+                        <li><strong>Diseño conceptual:</strong> Identificar entidades y relaciones</li>
+                        <li><strong>Diseño lógico:</strong> Crear el esquema de tablas</li>
+                        <li><strong>Diseño físico:</strong> Optimizar para el rendimiento</li>
+                    </ol>
+
+                    <h2>Modelo Entidad-Relación (ER)</h2>
+                    <p>El modelo ER es una representación gráfica que identifica entidades, atributos y relaciones. Se usa para visualizar cómo se conectan los datos antes de convertirlos en tablas.</p>
+                    <ul>
+                        <li><strong>Entidades:</strong> Objetos del mundo real, como <em>Estudiantes</em>, <em>Cursos</em> o <em>Instructores</em>.</li>
+                        <li><strong>Atributos:</strong> Propiedades de las entidades, como <em>nombre</em>, <em>email</em> o <em>fecha_inscripcion</em>.</li>
+                        <li><strong>Relaciones:</strong> Conexiones entre entidades, por ejemplo, un estudiante <em>inscrito</em> en un curso.</li>
+                        <li><strong>Cardinalidad:</strong> Define cuántas entidades participan en la relación (1:1, 1:N, N:M).</li>
+                    </ul>
+                    <p>Este modelo es importante para definir correctamente los requisitos y evitar estructuras de datos incorrectas.</p>
+
+                    <h2>Modelo Relacional</h2>
+                    <p>El modelo relacional convierte el diseño ER en tablas. Cada entidad se transforma en una tabla, cada atributo en una columna y cada relación en claves foráneas o tablas intermedias.</p>
+                    <ul>
+                        <li><strong>Tabla:</strong> Representa una entidad con columnas y filas.</li>
+                        <li><strong>Tupla:</strong> Cada fila de una tabla contiene un registro completo.</li>
+                        <li><strong>Dominio:</strong> Conjunto de valores válidos para cada columna.</li>
+                        <li><strong>Clave primaria:</strong> Identifica de forma única cada fila.</li>
+                        <li><strong>Clave foránea:</strong> Mantiene la integridad referencial entre tablas.</li>
+                    </ul>
+                    <p>El modelo relacional permite diseñar consultas eficientes y aplicar reglas de normalización para eliminar redundancia.</p>
+
+                    <h2>Modelado de Datos</h2>
+                    <div class="example-box">
+                        <strong>Diagrama Entidad-Relación (ER):</strong>
+                        <p>Muestra las entidades (tablas) y sus relaciones:</p>
+                        <pre>
+ESTUDIANTES ---- CURSOS
+    1           M
+  (1:M)
+                        </pre>
+                    </div>
+
+                    <h2>Reglas de Diseño Importantes</h2>
+                    <ul>
+                        <li>Cada tabla debe representar una entidad única</li>
+                        <li>Minimizar la redundancia de datos</li>
+                        <li>Usar claves primarias para identificar registros únicos</li>
+                        <li>Usar claves externas para relacionar tablas</li>
+                        <li>Aplicar normalización</li>
+                    </ul>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usar herramientas como MySQL Workbench, ERDPlus o Lucidchart para visualizar el diseño.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Crear BD y Tablas -->
+            <div class="content-section">
+                <h1 class="section-title">➕ Crear BD y Tablas</h1>
+                <div class="section-images">
+                    <img src="img/anatomia.1.jpeg" alt="Anatomía 1 de crear tabla">
+                    <img src="img/anatomia.2.jpeg" alt="Anatomía 2 de crear tabla">
+                    <img src="img/anatomia.3.jpeg" alt="Anatomía 3 de crear tabla">
+                    <img src="img/anatomia.4.jpeg" alt="Anatomía 4 de crear tabla">
+                </div>
+                <div class="section-content">
+                    <p>Las cuatro imágenes muestran la creación de una base de datos y la anatomía de la primera tabla, con sus campos y restricciones.</p>
+                    <p>Debajo se explica brevemente cómo aplicar esa estructura en SQL.</p>
+                    <h2>Crear una Base de Datos</h2>
+                    <div class="code-block">
+CREATE DATABASE mi_base_datos;
+                    </div>
+
+                    <h2>Crear una Tabla Básica</h2>
+                    <div class="code-block">
+CREATE TABLE estudiantes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    edad INT,
+    fecha_inscripcion DATE
+);
+                    </div>
+
+                    <h2>Tipos de Datos Comunes</h2>
+                    <table>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>INT</td>
+                            <td>Números enteros</td>
+                            <td>25, 100, -50</td>
+                        </tr>
+                        <tr>
+                            <td>VARCHAR(n)</td>
+                            <td>Texto variable</td>
+                            <td>'Juan', 'María'</td>
+                        </tr>
+                        <tr>
+                            <td>DATE</td>
+                            <td>Fecha</td>
+                            <td>2026-06-16</td>
+                        </tr>
+                        <tr>
+                            <td>DECIMAL(p,s)</td>
+                            <td>Números decimales</td>
+                            <td>99.99</td>
+                        </tr>
+                        <tr>
+                            <td>BOOLEAN</td>
+                            <td>Verdadero/Falso</td>
+                            <td>TRUE, FALSE</td>
+                        </tr>
+                    </table>
+
+                    <h2>Restricciones</h2>
+                    <div class="code-block">
+CREATE TABLE productos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL CHECK (precio > 0),
+    stock INT DEFAULT 0,
+    email VARCHAR(100) UNIQUE
+);
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>Restricciones Importantes:</strong>
+                        <ul>
+                            <li><strong>PRIMARY KEY:</strong> Identifica únicamente cada registro</li>
+                            <li><strong>NOT NULL:</strong> El campo no puede estar vacío</li>
+                            <li><strong>UNIQUE:</strong> Todos los valores deben ser únicos</li>
+                            <li><strong>DEFAULT:</strong> Valor por defecto si no se especifica</li>
+                            <li><strong>CHECK:</strong> Valida condiciones</li>
+                            <li><strong>FOREIGN KEY:</strong> Referencia a otra tabla</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Modificar y Eliminar Tablas -->
+            <div class="content-section">
+                <h1 class="section-title">✏️ Modificar y Eliminar Tablas</h1>
+                <div class="section-images">
+                    <img src="img/modificar.1.jpeg" alt="Modificar tabla 1">
+                    <img src="img/modificar.2.jpeg" alt="Modificar tabla 2">
+                    <img src="img/modificar.3.jpeg" alt="Modificar tabla 3">
+                    <img src="img/modificar.4.jpeg" alt="Modificar tabla 4">
+                </div>
+                <div class="section-content">
+                    <h2>Modificar una Tabla (ALTER TABLE)</h2>
+
+                    <h3>Agregar una Columna</h3>
+                    <div class="code-block">
+ALTER TABLE estudiantes
+ADD COLUMN telefono VARCHAR(15);
+                    </div>
+
+                    <h3>Modificar una Columna</h3>
+                    <div class="code-block">
+ALTER TABLE estudiantes
+MODIFY COLUMN nombre VARCHAR(150) NOT NULL;
+                    </div>
+
+                    <h3>Eliminar una Columna</h3>
+                    <div class="code-block">
+ALTER TABLE estudiantes
+DROP COLUMN telefono;
+                    </div>
+
+                    <h3>Renombrar una Columna</h3>
+                    <div class="code-block">
+ALTER TABLE estudiantes
+CHANGE COLUMN edad edad_actual INT;
+                    </div>
+
+                    <h3>Renombrar Tabla</h3>
+                    <div class="code-block">
+RENAME TABLE estudiantes TO alumnos;
+                    </div>
+
+                    <h2>Eliminar una Tabla</h2>
+                    <div class="code-block">
+DROP TABLE estudiantes;
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Cuidado:</strong> DROP TABLE elimina la tabla y todos sus datos permanentemente. Siempre haz una copia de seguridad.
+                    </div>
+
+                    <h2>Eliminar una BD Completa</h2>
+                    <div class="code-block">
+DROP DATABASE mi_base_datos;
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Para mayor seguridad, usa DROP TABLE IF EXISTS para evitar errores.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Foreign Key y Normalización -->
+            <div class="content-section">
+                <h1 class="section-title">🔗 Foreign Key y Normalización</h1>
+                <div class="section-images single">
+                    <img src="img/foreign.jpeg" alt="Foreign key y normalización">
+                </div>
+                <div class="section-content">
+                    <h2>¿Qué es una Clave Foránea?</h2>
+                    <p>Una clave foránea es un campo en una tabla que hace referencia a la clave primaria de otra tabla, estableciendo una relación entre las tablas.</p>
+
+                    <h2>Crear Foreign Key</h2>
+                    <div class="code-block">
+CREATE TABLE cursos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    instructor_id INT,
+    FOREIGN KEY (instructor_id) REFERENCES instructores(id)
+);
+                    </div>
+
+                    <h2>Normalización</h2>
+                    <p>La normalización es el proceso de organizar datos para reducir redundancia.</p>
+
+                    <h3>Primera Forma Normal (1NF)</h3>
+                    <ul>
+                        <li>Eliminar grupos repetitivos</li>
+                        <li>Cada campo debe contener un solo valor</li>
+                    </ul>
+
+                    <h3>Segunda Forma Normal (2NF)</h3>
+                    <ul>
+                        <li>Cumplir con 1NF</li>
+                        <li>Eliminar dependencias parciales</li>
+                    </ul>
+
+                    <h3>Tercera Forma Normal (3NF)</h3>
+                    <ul>
+                        <li>Cumplir con 2NF</li>
+                        <li>Eliminar dependencias transitivas</li>
+                    </ul>
+
+                    <h2>Ejemplo de Relación</h2>
+                    <div class="example-box">
+                        <strong>Tabla Instructores:</strong>
+                        <table>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Carlos</td>
+                            </tr>
+                        </table>
+
+                        <strong>Tabla Cursos:</strong>
+                        <table>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Instructor_ID</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>SQL Avanzado</td>
+                                <td>1</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> La normalización mejora la integridad de datos y reduce el almacenamiento redundante.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Insertar Registros -->
+            <div class="content-section">
+                <h1 class="section-title">📝 Insertar Registros</h1>
+                <div class="section-images single">
+                    <img src="img/insertar.jpeg" alt="Insertar registros">
+                </div>
+                <div class="section-content">
+                    <h2>INSERT INTO - Sintaxis Básica</h2>
+                    <div class="code-block">
+INSERT INTO tabla (columna1, columna2, columna3)
+VALUES (valor1, valor2, valor3);
+                    </div>
+
+                    <h2>Ejemplo 1: Insertar un Registro</h2>
+                    <div class="code-block">
+INSERT INTO estudiantes (nombre, email, edad)
+VALUES ('Juan Pérez', 'juan@email.com', 20);
+                    </div>
+
+                    <h2>Ejemplo 2: Insertar sin Especificar Columnas</h2>
+                    <div class="code-block">
+INSERT INTO estudiantes
+VALUES (NULL, 'María García', 'maria@email.com', 22, '2026-01-15');
+                    </div>
+
+                    <h2>Insertar Múltiples Registros</h2>
+                    <div class="code-block">
+INSERT INTO estudiantes (nombre, email, edad)
+VALUES 
+    ('Ana López', 'ana@email.com', 21),
+    ('Pedro Ruiz', 'pedro@email.com', 23),
+    ('Laura Martín', 'laura@email.com', 20);
+                    </div>
+
+                    <h2>Insertar desde otra Tabla</h2>
+                    <div class="code-block">
+INSERT INTO estudiantes_bak (nombre, email)
+SELECT nombre, email FROM estudiantes;
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Los valores de texto deben ir entre comillas simples.
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Cuidado:</strong> Verifica que los tipos de datos coincidan con la definición de la tabla.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Eliminar Registros -->
+            <div class="content-section">
+                <h1 class="section-title">🗑️ Eliminar Registros</h1>
+                <div class="section-images single">
+                    <img src="img/eliminar.jpeg" alt="Eliminar registros">
+                </div>
+                <div class="section-content">
+                    <h2>DELETE - Sintaxis Básica</h2>
+                    <div class="code-block">
+DELETE FROM tabla
+WHERE condición;
+                    </div>
+
+                    <h2>Ejemplo 1: Eliminar un Registro Específico</h2>
+                    <div class="code-block">
+DELETE FROM estudiantes
+WHERE id = 5;
+                    </div>
+
+                    <h2>Ejemplo 2: Eliminar Múltiples Registros</h2>
+                    <div class="code-block">
+DELETE FROM estudiantes
+WHERE edad > 30;
+                    </div>
+
+                    <h2>Ejemplo 3: Eliminar todos los Registros</h2>
+                    <div class="code-block">
+DELETE FROM estudiantes;
+                    </div>
+
+                    <h2>Diferencia entre DELETE y TRUNCATE</h2>
+                    <table>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>DELETE</th>
+                            <th>TRUNCATE</th>
+                        </tr>
+                        <tr>
+                            <td>Velocidad</td>
+                            <td>Más lento</td>
+                            <td>Más rápido</td>
+                        </tr>
+                        <tr>
+                            <td>WHERE</td>
+                            <td>Se puede usar</td>
+                            <td>No se puede usar</td>
+                        </tr>
+                        <tr>
+                            <td>Identidad</td>
+                            <td>Se preserva</td>
+                            <td>Se reinicia</td>
+                        </tr>
+                        <tr>
+                            <td>Espacio</td>
+                            <td>No libera</td>
+                            <td>Libera espacio</td>
+                        </tr>
+                    </table>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Cuidado:</strong> Siempre verifica la condición WHERE antes de ejecutar DELETE. Sin ella, eliminarás todos los registros.
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usa transacciones para mayor seguridad:
+                        <div class="code-block">
+BEGIN;
+DELETE FROM estudiantes WHERE id = 5;
+COMMIT; -- o ROLLBACK para deshacer
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Actualizar Registros -->
+            <div class="content-section">
+                <h1 class="section-title">🔄 Actualizar Registros</h1>
+                <div class="section-images single">
+                    <img src="img/actualizar.jpeg" alt="Actualizar registros">
+                </div>
+                <div class="section-content">
+                    <h2>UPDATE - Sintaxis Básica</h2>
+                    <div class="code-block">
+UPDATE tabla
+SET columna1 = valor1, columna2 = valor2
+WHERE condición;
+                    </div>
+
+                    <h2>Ejemplo 1: Actualizar un Campo</h2>
+                    <div class="code-block">
+UPDATE estudiantes
+SET edad = 21
+WHERE id = 1;
+                    </div>
+
+                    <h2>Ejemplo 2: Actualizar Múltiples Campos</h2>
+                    <div class="code-block">
+UPDATE estudiantes
+SET nombre = 'Juan Carlos', email = 'juan.carlos@email.com'
+WHERE id = 1;
+                    </div>
+
+                    <h2>Ejemplo 3: Actualizar con Cálculos</h2>
+                    <div class="code-block">
+UPDATE productos
+SET precio = precio * 1.10
+WHERE categoria = 'Electrónica';
+                    </div>
+
+                    <h2>Ejemplo 4: Actualizar Todos los Registros</h2>
+                    <div class="code-block">
+UPDATE estudiantes
+SET estado = 'Activo';
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Cuidado:</strong> Siempre especifica una condición WHERE. Sin ella, actualizarás TODOS los registros.
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usa SELECT primero para verificar qué registros se actualizarán:
+                        <div class="code-block">
+SELECT * FROM estudiantes WHERE id = 1; -- Verifica
+UPDATE estudiantes SET edad = 21 WHERE id = 1; -- Actualiza
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Seleccionar Registros -->
+            <div class="content-section">
+                <h1 class="section-title">🔍 Seleccionar Registros</h1>
+                <div class="section-images single">
+                    <img src="img/seleccionar.jpeg" alt="Seleccionar registros">
+                </div>
+                <div class="section-content">
+                    <h2>SELECT - Sintaxis Básica</h2>
+                    <div class="code-block">
+SELECT columna1, columna2
+FROM tabla
+WHERE condición;
+                    </div>
+
+                    <h2>Ejemplo 1: Seleccionar Todas las Columnas</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes;
+                    </div>
+
+                    <h2>Ejemplo 2: Seleccionar Columnas Específicas</h2>
+                    <div class="code-block">
+SELECT nombre, email, edad FROM estudiantes;
+                    </div>
+
+                    <h2>Ejemplo 3: Seleccionar con Condición</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE edad > 20;
+                    </div>
+
+                    <h2>Ejemplo 4: Seleccionar con Alias</h2>
+                    <div class="code-block">
+SELECT nombre AS 'Nombre del Estudiante', 
+       edad AS 'Edad del Estudiante'
+FROM estudiantes;
+                    </div>
+
+                    <h2>JOINS - Combinar Tablas</h2>
+
+                    <h3>INNER JOIN</h3>
+                    <div class="code-block">
+SELECT e.nombre, c.nombre
+FROM estudiantes e
+INNER JOIN cursos c ON e.id = c.estudiante_id;
+                    </div>
+
+                    <h3>LEFT JOIN</h3>
+                    <div class="code-block">
+SELECT e.nombre, c.nombre
+FROM estudiantes e
+LEFT JOIN cursos c ON e.id = c.estudiante_id;
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usa alias (AS) para hacer tus consultas más legibles.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Operadores Lógicos y de Comparación -->
+            <div class="content-section">
+                <h1 class="section-title">⚙️ Operadores Lógicos y de Comparación</h1>
+                <div class="section-images">
+                    <img src="img/llave.1.jpeg" alt="Operadores llaves 1">
+                    <img src="img/llave.2.jpeg" alt="Operadores llaves 2">
+                </div>
+                <div class="section-content">
+                    <h2>Operadores de Comparación</h2>
+                    <table>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Significado</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>=</td>
+                            <td>Igual a</td>
+                            <td>WHERE edad = 25</td>
+                        </tr>
+                        <tr>
+                            <td>!=  o  &lt;&gt;</td>
+                            <td>No igual a</td>
+                            <td>WHERE edad != 25</td>
+                        </tr>
+                        <tr>
+                            <td>&gt;</td>
+                            <td>Mayor que</td>
+                            <td>WHERE edad > 25</td>
+                        </tr>
+                        <tr>
+                            <td>&lt;</td>
+                            <td>Menor que</td>
+                            <td>WHERE edad &lt; 25</td>
+                        </tr>
+                        <tr>
+                            <td>&gt;=</td>
+                            <td>Mayor o igual que</td>
+                            <td>WHERE edad >= 25</td>
+                        </tr>
+                        <tr>
+                            <td>&lt;=</td>
+                            <td>Menor o igual que</td>
+                            <td>WHERE edad &lt;= 25</td>
+                        </tr>
+                    </table>
+
+                    <h2>Operadores Lógicos</h2>
+                    <table>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Significado</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>AND</td>
+                            <td>Todas las condiciones deben ser verdaderas</td>
+                            <td>WHERE edad > 20 AND edad &lt; 30</td>
+                        </tr>
+                        <tr>
+                            <td>OR</td>
+                            <td>Al menos una condición debe ser verdadera</td>
+                            <td>WHERE edad &lt; 20 OR edad > 30</td>
+                        </tr>
+                        <tr>
+                            <td>NOT</td>
+                            <td>Niega una condición</td>
+                            <td>WHERE NOT edad = 25</td>
+                        </tr>
+                    </table>
+
+                    <h2>Otros Operadores Útiles</h2>
+
+                    <h3>BETWEEN</h3>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE edad BETWEEN 20 AND 30;
+                    </div>
+
+                    <h3>IN</h3>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE ciudad IN ('Madrid', 'Barcelona', 'Valencia');
+                    </div>
+
+                    <h3>LIKE</h3>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE nombre LIKE 'J%'; -- Comienza con J
+                    </div>
+
+                    <h3>IS NULL / IS NOT NULL</h3>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE telefono IS NOT NULL;
+                    </div>
+
+                    <h2>Ejemplos Complejos</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE (edad > 20 AND ciudad = 'Madrid')
+      OR (edad < 18 AND ciudad = 'Barcelona')
+      AND estado = 'Activo';
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usa paréntesis para clarificar la precedencia lógica de tus condiciones.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. Order By, Limit, Top -->
+            <div class="content-section">
+                <h1 class="section-title">📊 Order By / Limit / Top</h1>
+                <div class="section-images">
+                    <img src="img/extraccion.1.jpeg" alt="Extracción 1">
+                    <img src="img/extraccion.2.jpeg" alt="Extracción 2">
+                    <img src="img/extraccion.3.jpeg" alt="Extracción 3">
+                    <img src="img/extraccion.4.jpeg" alt="Extracción 4">
+                </div>
+                <div class="section-content">
+                    <h2>ORDER BY - Ordenar Resultados</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+ORDER BY nombre ASC;
+                    </div>
+
+                    <h2>ORDER BY Descendente</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+ORDER BY edad DESC;
+                    </div>
+
+                    <h2>ORDER BY por Múltiples Columnas</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+ORDER BY ciudad ASC, edad DESC;
+                    </div>
+
+                    <h2>LIMIT - Limitar Resultados (MySQL, PostgreSQL)</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+LIMIT 10; -- Primeros 10 registros
+
+SELECT * FROM estudiantes
+LIMIT 5 OFFSET 10; -- 5 registros a partir del 11
+                    </div>
+
+                    <h2>TOP - Limitar Resultados (SQL Server)</h2>
+                    <div class="code-block">
+SELECT TOP 10 * FROM estudiantes;
+
+SELECT TOP 10 PERCENT * FROM estudiantes;
+                    </div>
+
+                    <h2>FETCH - Limitar Resultados (SQL Server, PostgreSQL)</h2>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+ORDER BY id
+OFFSET 10 ROWS
+FETCH NEXT 5 ROWS ONLY;
+                    </div>
+
+                    <h2>Paginación</h2>
+                    <div class="code-block">
+-- Página 1: Primeros 10 registros
+SELECT * FROM estudiantes
+ORDER BY id
+LIMIT 10 OFFSET 0;
+
+-- Página 2: Registros del 11 al 20
+SELECT * FROM estudiantes
+ORDER BY id
+LIMIT 10 OFFSET 10;
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usa ORDER BY antes de LIMIT para asegurar resultados consistentes.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12. Funciones de Texto -->
+            <div class="content-section">
+                <h1 class="section-title">📄 Funciones de Texto</h1>
+                <div class="section-images">
+                    <img src="img/texto.1.jpeg" alt="Funciones de texto 1">
+                    <img src="img/texto.2.jpeg" alt="Funciones de texto 2">
+                    <img src="img/texto.3.jpeg" alt="Funciones de texto 3">
+                    <img src="img/texto.4.jpeg" alt="Funciones de texto 4">
+                    <img src="img/texto.5.jpeg" alt="Funciones de texto 5">
+                </div>
+                <div class="section-content">
+                    <h2>Funciones de Texto Comunes</h2>
+                    <table>
+                        <tr>
+                            <th>Función</th>
+                            <th>Descripción</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>UPPER()</td>
+                            <td>Convertir a mayúsculas</td>
+                            <td>UPPER('juan') = 'JUAN'</td>
+                        </tr>
+                        <tr>
+                            <td>LOWER()</td>
+                            <td>Convertir a minúsculas</td>
+                            <td>LOWER('JUAN') = 'juan'</td>
+                        </tr>
+                        <tr>
+                            <td>LENGTH()</td>
+                            <td>Obtener longitud del texto</td>
+                            <td>LENGTH('Juan') = 4</td>
+                        </tr>
+                        <tr>
+                            <td>SUBSTRING()</td>
+                            <td>Extraer parte del texto</td>
+                            <td>SUBSTRING('Juan', 1, 2) = 'Ju'</td>
+                        </tr>
+                        <tr>
+                            <td>TRIM()</td>
+                            <td>Eliminar espacios en blanco</td>
+                            <td>TRIM('  Juan  ') = 'Juan'</td>
+                        </tr>
+                        <tr>
+                            <td>REPLACE()</td>
+                            <td>Reemplazar texto</td>
+                            <td>REPLACE('Juan', 'u', 'a') = 'Jaan'</td>
+                        </tr>
+                        <tr>
+                            <td>CONCAT()</td>
+                            <td>Concatenar textos</td>
+                            <td>CONCAT('Juan', ' ', 'Pérez')</td>
+                        </tr>
+                        <tr>
+                            <td>REVERSE()</td>
+                            <td>Invertir texto</td>
+                            <td>REVERSE('Juan') = 'nauJ'</td>
+                        </tr>
+                    </table>
+
+                    <h2>Ejemplos Prácticos</h2>
+
+                    <h3>Convertir a Mayúsculas</h3>
+                    <div class="code-block">
+SELECT nombre, UPPER(nombre) AS nombre_mayuscula
+FROM estudiantes;
+                    </div>
+
+                    <h3>Concatenar Campos</h3>
+                    <div class="code-block">
+SELECT CONCAT(nombre, ' - ', email) AS informacion
+FROM estudiantes;
+                    </div>
+
+                    <h3>Extraer Parte del Texto</h3>
+                    <div class="code-block">
+SELECT nombre, SUBSTRING(email, 1, 5) AS inicio_email
+FROM estudiantes;
+                    </div>
+
+                    <h3>Buscar y Reemplazar</h3>
+                    <div class="code-block">
+SELECT REPLACE(descripcion, 'viejo', 'nuevo') AS descripcion_actualizada
+FROM productos;
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Las funciones de texto son muy útiles para limpiar y normalizar datos.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13. Funciones Numéricas -->
+            <div class="content-section">
+                <h1 class="section-title">🔢 Funciones Numéricas</h1>
+                <div class="section-images single">
+                    <img src="img/numericas.jpeg" alt="Funciones numéricas">
+                </div>
+                <div class="section-content">
+                    <h2>Funciones Numéricas Comunes</h2>
+                    <table>
+                        <tr>
+                            <th>Función</th>
+                            <th>Descripción</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>ABS()</td>
+                            <td>Valor absoluto</td>
+                            <td>ABS(-25) = 25</td>
+                        </tr>
+                        <tr>
+                            <td>ROUND()</td>
+                            <td>Redondear</td>
+                            <td>ROUND(3.7) = 4</td>
+                        </tr>
+                        <tr>
+                            <td>CEIL()</td>
+                            <td>Redondear hacia arriba</td>
+                            <td>CEIL(3.2) = 4</td>
+                        </tr>
+                        <tr>
+                            <td>FLOOR()</td>
+                            <td>Redondear hacia abajo</td>
+                            <td>FLOOR(3.9) = 3</td>
+                        </tr>
+                        <tr>
+                            <td>POWER()</td>
+                            <td>Potencia</td>
+                            <td>POWER(2, 3) = 8</td>
+                        </tr>
+                        <tr>
+                            <td>SQRT()</td>
+                            <td>Raíz cuadrada</td>
+                            <td>SQRT(16) = 4</td>
+                        </tr>
+                        <tr>
+                            <td>MOD()</td>
+                            <td>Módulo (resto)</td>
+                            <td>MOD(10, 3) = 1</td>
+                        </tr>
+                        <tr>
+                            <td>RAND()</td>
+                            <td>Número aleatorio</td>
+                            <td>RAND() = 0.123...</td>
+                        </tr>
+                    </table>
+
+                    <h2>Funciones de Agregación</h2>
+                    <table>
+                        <tr>
+                            <th>Función</th>
+                            <th>Descripción</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>SUM()</td>
+                            <td>Suma total</td>
+                            <td>SUM(precio)</td>
+                        </tr>
+                        <tr>
+                            <td>AVG()</td>
+                            <td>Promedio</td>
+                            <td>AVG(edad)</td>
+                        </tr>
+                        <tr>
+                            <td>MIN()</td>
+                            <td>Valor mínimo</td>
+                            <td>MIN(precio)</td>
+                        </tr>
+                        <tr>
+                            <td>MAX()</td>
+                            <td>Valor máximo</td>
+                            <td>MAX(edad)</td>
+                        </tr>
+                        <tr>
+                            <td>COUNT()</td>
+                            <td>Contar registros</td>
+                            <td>COUNT(*)</td>
+                        </tr>
+                    </table>
+
+                    <h2>Ejemplos Prácticos</h2>
+
+                    <h3>Redondear Precios</h3>
+                    <div class="code-block">
+SELECT nombre, ROUND(precio, 2) AS precio_redondeado
+FROM productos;
+                    </div>
+
+                    <h3>Calcular Suma Total</h3>
+                    <div class="code-block">
+SELECT SUM(precio) AS total
+FROM productos;
+                    </div>
+
+                    <h3>Promedio de Edad</h3>
+                    <div class="code-block">
+SELECT AVG(edad) AS edad_promedio
+FROM estudiantes;
+                    </div>
+
+                    <h3>Contar Registros</h3>
+                    <div class="code-block">
+SELECT COUNT(*) AS total_estudiantes
+FROM estudiantes;
+                    </div>
+
+                    <h3>Precio Mínimo y Máximo</h3>
+                    <div class="code-block">
+SELECT MIN(precio) AS precio_minimo,
+       MAX(precio) AS precio_maximo
+FROM productos;
+                    </div>
+
+                    <h2>GROUP BY</h2>
+                    <div class="code-block">
+SELECT ciudad, COUNT(*) AS total_estudiantes
+FROM estudiantes
+GROUP BY ciudad;
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Usa COUNT(columna) para contar valores no nulos, o COUNT(*) para contar todas las filas.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 14. Fechas y Horas -->
+            <div class="content-section">
+                <h1 class="section-title">🕐 Manejo de Fechas y Horas en SQL</h1>
+                <div class="section-images">
+                    <img src="img/hora.6.jpeg" alt="Fecha y hora 6">
+                    <img src="img/hora.7.jpeg" alt="Fecha y hora 7">
+                    <img src="img/hora.1.jpg" alt="Fecha y hora 1">
+                    <img src="img/hora.2.jpg" alt="Fecha y hora 2">
+                    <img src="img/hora.3.jpg" alt="Fecha y hora 3">
+                    <img src="img/hora.4.jpg" alt="Fecha y hora 4">
+                    <img src="img/hora.5.jpg" alt="Fecha y hora 5">
+                </div>
+                <div class="section-content">
+                    <h2>Tipos de Datos de Fecha y Hora</h2>
+                    <table>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Formato</th>
+                            <th>Rango</th>
+                        </tr>
+                        <tr>
+                            <td>DATE</td>
+                            <td>YYYY-MM-DD</td>
+                            <td>1000-01-01 a 9999-12-31</td>
+                        </tr>
+                        <tr>
+                            <td>TIME</td>
+                            <td>HH:MM:SS</td>
+                            <td>-838:59:59 a 838:59:59</td>
+                        </tr>
+                        <tr>
+                            <td>DATETIME</td>
+                            <td>YYYY-MM-DD HH:MM:SS</td>
+                            <td>Combinación de ambos</td>
+                        </tr>
+                        <tr>
+                            <td>TIMESTAMP</td>
+                            <td>YYYY-MM-DD HH:MM:SS</td>
+                            <td>1970-01-01 a 2038-01-19</td>
+                        </tr>
+                        <tr>
+                            <td>YEAR</td>
+                            <td>YYYY</td>
+                            <td>1901 a 2155</td>
+                        </tr>
+                    </table>
+
+                    <h2>Funciones de Fecha y Hora</h2>
+                    <table>
+                        <tr>
+                            <th>Función</th>
+                            <th>Descripción</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                        <tr>
+                            <td>NOW()</td>
+                            <td>Fecha y hora actual</td>
+                            <td>NOW() = 2026-06-16 14:30:00</td>
+                        </tr>
+                        <tr>
+                            <td>CURDATE()</td>
+                            <td>Fecha actual</td>
+                            <td>CURDATE() = 2026-06-16</td>
+                        </tr>
+                        <tr>
+                            <td>CURTIME()</td>
+                            <td>Hora actual</td>
+                            <td>CURTIME() = 14:30:00</td>
+                        </tr>
+                        <tr>
+                            <td>DATE_ADD()</td>
+                            <td>Sumar días a una fecha</td>
+                            <td>DATE_ADD(NOW(), INTERVAL 7 DAY)</td>
+                        </tr>
+                        <tr>
+                            <td>DATEDIFF()</td>
+                            <td>Diferencia entre fechas</td>
+                            <td>DATEDIFF(fecha1, fecha2)</td>
+                        </tr>
+                        <tr>
+                            <td>DATE_FORMAT()</td>
+                            <td>Formatear fecha</td>
+                            <td>DATE_FORMAT(NOW(), '%d/%m/%Y')</td>
+                        </tr>
+                        <tr>
+                            <td>YEAR()</td>
+                            <td>Extraer año</td>
+                            <td>YEAR('2026-06-16') = 2026</td>
+                        </tr>
+                        <tr>
+                            <td>MONTH()</td>
+                            <td>Extraer mes</td>
+                            <td>MONTH('2026-06-16') = 6</td>
+                        </tr>
+                        <tr>
+                            <td>DAY()</td>
+                            <td>Extraer día</td>
+                            <td>DAY('2026-06-16') = 16</td>
+                        </tr>
+                    </table>
+
+                    <h2>Ejemplos Prácticos</h2>
+
+                    <h3>Insertar Fecha Actual</h3>
+                    <div class="code-block">
+INSERT INTO estudiantes (nombre, fecha_inscripcion)
+VALUES ('Juan', NOW());
+                    </div>
+
+                    <h3>Calcular Días de Diferencia</h3>
+                    <div class="code-block">
+SELECT nombre, DATEDIFF(NOW(), fecha_inscripcion) AS dias_inscrito
+FROM estudiantes;
+                    </div>
+
+                    <h3>Sumar Días a una Fecha</h3>
+                    <div class="code-block">
+SELECT DATE_ADD('2026-06-16', INTERVAL 30 DAY) AS fecha_futura;
+                    </div>
+
+                    <h3>Formatear Fecha</h3>
+                    <div class="code-block">
+SELECT DATE_FORMAT(NOW(), '%d de %M de %Y') AS fecha_formateada;
+                    </div>
+
+                    <h3>Buscar Registros de Hoy</h3>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE DATE(fecha_inscripcion) = CURDATE();
+                    </div>
+
+                    <h3>Buscar Registros del Último Mes</h3>
+                    <div class="code-block">
+SELECT * FROM estudiantes
+WHERE fecha_inscripcion >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+                    </div>
+
+                    <h2>Formatos de DATE_FORMAT Comunes</h2>
+                    <table>
+                        <tr>
+                            <th>Formato</th>
+                            <th>Descripción</th>
+                        </tr>
+                        <tr>
+                            <td>%d</td>
+                            <td>Día (01-31)</td>
+                        </tr>
+                        <tr>
+                            <td>%m</td>
+                            <td>Mes (01-12)</td>
+                        </tr>
+                        <tr>
+                            <td>%Y</td>
+                            <td>Año (4 dígitos)</td>
+                        </tr>
+                        <tr>
+                            <td>%H</td>
+                            <td>Hora (00-23)</td>
+                        </tr>
+                        <tr>
+                            <td>%i</td>
+                            <td>Minutos (00-59)</td>
+                        </tr>
+                        <tr>
+                            <td>%s</td>
+                            <td>Segundos (00-59)</td>
+                        </tr>
+                    </table>
+
+                    <div class="tip-box">
+                        <strong>💡 Consejo:</strong> Siempre usa el formato YYYY-MM-DD para insertar fechas para evitar ambigüedades.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(index) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remover clase active de todos los items del menú
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Mostrar la sección seleccionada
+            sections[index].classList.add('active');
+
+            // Marcar el item del menú como activo
+            menuItems[index].classList.add('active');
+
+            // Scroll al inicio del contenido
+            document.querySelector('.content').scrollTop = 0;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection(0);
+        });
+    </script>
+</body>
+</html>
